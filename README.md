@@ -19,4 +19,4 @@ Feel free to open a pull request if you find a bug or if you want to add a new f
 
 ## License
 
-This open-sourced software is licensed under the [GNU AGPLv3 license](http://www.gnu.org/licenses/agpl-3.0.txt).
+This open-sourced software is licensed under the [GNU GPLv3 license](./LICENSE.md).
