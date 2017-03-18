@@ -8,11 +8,11 @@ import static engine.GameGrid.translatePoint;
 
 
 /**
- * Level handles the creation of the game level parsing a {@link List} of {@link String} and putting the right
+ * Level handles the creation of the game level parsing a {@link List} of {@link String}s and putting the right
  * {@link GameObject} in a 2D array. The object is created matching a char with the corresponding {@link GameObject}.
  *
  * @author Stefano Frazzetto
- * @since 1.0.0
+ * @since 2.3.0
  */
 public final class Level implements Iterable<GameObject> {
 
@@ -28,21 +28,18 @@ public final class Level implements Iterable<GameObject> {
      * The object containing the diamondsGrid.
      */
     private final GameGrid diamondsGrid;
-
-    /**
-     * The total number of diamondsGrid in this level
-     */
-    private final int numberOfDiamonds;
-
     /**
      * The level index
      */
     private final int index;
-
+    /**
+     * The total number of diamondsGrid in this level
+     */
+    private int numberOfDiamonds = 0;
     /**
      * The current warehouse keeper position
      */
-    private Point keeperPosition = new Point(0,0);
+    private Point keeperPosition = new Point(0, 0);
 
     /**
      * Creates a level using the first parameter as the level name and the second parameter as {@link List} of
@@ -68,8 +65,6 @@ public final class Level implements Iterable<GameObject> {
         objectsGrid = new GameGrid(rows, columns);
         diamondsGrid = new GameGrid(rows, columns);
 
-        int diamondsCount = 0;
-
         // Loop over the List
         for (int row = 0; row < raw_level.size(); row++) {
 
@@ -82,6 +77,7 @@ public final class Level implements Iterable<GameObject> {
                 // If the tile is a diamond, add it to the diamond grid and add a floor
                 // into the objects grid.
                 if (curTile == GameObject.DIAMOND) {
+                    numberOfDiamonds++;
                     diamondsGrid.putGameObjectAt(curTile, row, col);
                     curTile = GameObject.FLOOR;
                 } else if (curTile == GameObject.KEEPER) {
@@ -92,7 +88,19 @@ public final class Level implements Iterable<GameObject> {
                 curTile = null;
             } // END- String loop
         } // END - List loop
-        numberOfDiamonds = diamondsCount;
+    }
+
+    boolean isComplete() {
+        int cratedDiamondsCount = 0;
+        for (int row = 0; row < objectsGrid.ROWS; row++) {
+            for (int col = 0; col < objectsGrid.COLUMNS; col++) {
+                if (objectsGrid.getGameObjectAt(col, row) == GameObject.CRATE && diamondsGrid.getGameObjectAt(col, row) == GameObject.DIAMOND) {
+                    cratedDiamondsCount++;
+                }
+            }
+        }
+
+        return cratedDiamondsCount >= numberOfDiamonds;
     }
 
     /**
@@ -126,7 +134,7 @@ public final class Level implements Iterable<GameObject> {
      * Returns the object at distance delta from source
      *
      * @param source the source point
-     * @param delta the distance from the source point
+     * @param delta  the distance from the source point
      * @return the object at distance delta from source
      */
     GameObject getTargetObject(Point source, Point delta) {
@@ -175,6 +183,7 @@ public final class Level implements Iterable<GameObject> {
         return new LevelIterator();
     }
 
+
     /**
      * LevelIterator provides the interface to iterate through the {@link GameGrid}
      * containing the {@link GameObject}s for the current {@link Level}.
@@ -198,13 +207,25 @@ public final class Level implements Iterable<GameObject> {
                 row++;
             }
 
+            GameObject object = objectsGrid.getGameObjectAt(column, row);
+            GameObject diamond = diamondsGrid.getGameObjectAt(column, row);
+            GameObject retObj = object;
+
+            // After the object is assigned, increment the column number.
+            column++;
+
             // If the diamonds grid contains a diamond, then return it.
-            if (diamondsGrid.getGameObjectAt(column, row) != null) {
-                return diamondsGrid.getGameObjectAt(column++,row);
+            if (diamond == GameObject.DIAMOND) {
+                if (object == GameObject.CRATE) {
+                    retObj = GameObject.CRATE_ON_DIAMOND;
+                } else if (object == GameObject.FLOOR) {
+                    retObj = diamond;
+                } else {
+                    retObj = object;
+                }
             }
 
-            GameObject obj = objectsGrid.getGameObjectAt(column++, row);
-            return obj != null ? obj : GameObject.FLOOR;
+            return retObj;
         }
 
         public Point getCurrentPosition() {

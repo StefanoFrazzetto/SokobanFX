@@ -4,10 +4,19 @@ import engine.GameObject;
 import engine.Level;
 import engine.SokoEngine;
 import javafx.event.ActionEvent;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
+import javafx.scene.effect.Effect;
+import javafx.scene.effect.MotionBlur;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.awt.*;
@@ -18,11 +27,9 @@ public class Controller {
 
     public MenuBar menu;
     public GridPane gameGrid;
-
     private Stage primaryStage;
-
     private SokoEngine sokoEngine;
-    private Level currentLevel;
+    private File saveFile;
 
     /**
      * Loads the default game file.
@@ -31,7 +38,8 @@ public class Controller {
      */
     void loadDefaultSaveFile(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        File saveFile = new File(getSaveFileLocation() + "/SampleGame.skb");
+        saveFile = new File(getSaveFileLocation() + "/SampleGame.skb");
+        setEventFilter();
         initializeGame(saveFile);
     }
 
@@ -42,8 +50,6 @@ public class Controller {
      */
     private void initializeGame(File file) {
         sokoEngine = new SokoEngine(file);
-        currentLevel = sokoEngine.getCurrentLevel();
-        setEventFilter();
         reloadGrid();
     }
 
@@ -78,20 +84,29 @@ public class Controller {
         fileChooser.setTitle("Open Save File");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Sokoban save file", "*.skb"));
 
-        try {
-            fileChooser.setInitialDirectory(getSaveFileLocation());
-        } finally {
-            File file = fileChooser.showOpenDialog(primaryStage);
+        fileChooser.setInitialDirectory(getSaveFileLocation());
+        File saveFile = fileChooser.showOpenDialog(primaryStage);
 
-            if (file != null)
-                initializeGame(file);
+        if (saveFile != null) {
+            if (SokoEngine.isDebugActive()) {
+                SokoEngine.logger.info("Loading save file: " + saveFile.getName());
+            }
+            initializeGame(saveFile);
         }
+
     }
 
     /**
      * Reloads the grid using the {@link Level} iterator.
      */
     private void reloadGrid() {
+        if (sokoEngine.isGameComplete()) {
+            // TODO: fix last move of the game.
+            showVictoryMessage();
+            return;
+        }
+
+        Level currentLevel = sokoEngine.getCurrentLevel();
         Level.LevelIterator levelGridIterator = (Level.LevelIterator) currentLevel.iterator();
 
         while (levelGridIterator.hasNext()) {
@@ -100,6 +115,39 @@ public class Controller {
 
         gameGrid.autosize();
         primaryStage.sizeToScene();
+    }
+
+    private void showVictoryMessage() {
+        String dialogTitle = "Game Over!";
+        String dialogMessage = "You completed " + sokoEngine.getMapSetName() + " in " + sokoEngine.getMovesCount() + " moves!";
+        MotionBlur mb = new MotionBlur(2, 3);
+
+        newDialog(dialogTitle, dialogMessage, mb);
+    }
+
+    private void newDialog(String dialogTitle, String dialogMessage, Effect dialogMessageEffect) {
+        final Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initOwner(primaryStage);
+        dialog.setResizable(false);
+        dialog.setTitle(dialogTitle);
+
+        Text text1 = new Text(dialogMessage);
+        text1.setTextAlignment(TextAlignment.CENTER);
+        text1.setFont(javafx.scene.text.Font.font(14));
+
+        if (dialogMessageEffect != null) {
+            text1.setEffect(dialogMessageEffect);
+        }
+
+        VBox dialogVbox = new VBox(20);
+        dialogVbox.setAlignment(Pos.CENTER);
+        dialogVbox.setBackground(Background.EMPTY);
+        dialogVbox.getChildren().add(text1);
+
+        Scene dialogScene = new Scene(dialogVbox, 350, 150);
+        dialog.setScene(dialogScene);
+        dialog.show();
     }
 
     /**
@@ -124,7 +172,7 @@ public class Controller {
     }
 
     public void loadGame(ActionEvent actionEvent) {
-        // TODO
+        loadGameFile();
     }
 
     public void undo(ActionEvent actionEvent) {
@@ -132,6 +180,13 @@ public class Controller {
     }
 
     public void resetLevel(ActionEvent actionEvent) {
-        // TODO
+        initializeGame(saveFile);
+    }
+
+    public void showAbout(ActionEvent actionEvent) {
+        String title = "About this game";
+        String message = "Game created by Stefano Frazzetto\n\nContribute on GitHub:\n" + SokoEngine.GitHubURL;
+
+        newDialog(title, message, null);
     }
 }

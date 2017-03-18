@@ -22,7 +22,7 @@ public class SokoLogger extends Logger {
     public SokoLogger() throws IOException {
         super("com.stefanofrazzetto.sokoban", null);
 
-        File directory = new File(System.getProperty("user.dir") + "/" + SokoEngine.GAME_NAME + "-logfiles");
+        File directory = new File(System.getProperty("user.dir") + "/" + "logs");
         directory.mkdirs();
 
         FileHandler fh = new FileHandler(directory + "/" + SokoEngine.GAME_NAME + ".log");

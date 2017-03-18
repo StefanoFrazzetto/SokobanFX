@@ -6,7 +6,8 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 
 /**
- * GraphicObject is used to create a {@link Rectangle} from a {@link GameObject}.
+ * GraphicObject is used to populate the game grid.
+ * It creates {@link Rectangle} from {@link GameObject}.
  */
 class GraphicObject extends Rectangle {
 
@@ -22,7 +23,7 @@ class GraphicObject extends Rectangle {
                 break;
 
             case DIAMOND:
-                color = Color.DARKCYAN;
+                color = Color.DEEPSKYBLUE;
                 break;
 
             case KEEPER:
@@ -33,9 +34,14 @@ class GraphicObject extends Rectangle {
                 color = Color.WHITE;
                 break;
 
+            case CRATE_ON_DIAMOND:
+                color = Color.DARKCYAN;
+                break;
+
             default:
-                SokoEngine.logger.severe("Error in Level constructor. Object not recognized.");
-                throw new AssertionError("Something impossible just happened in Level constructor.");
+                String message = "Error in Level constructor. Object not recognized.";
+                SokoEngine.logger.severe(message);
+                throw new AssertionError(message);
         }
 
         if (SokoEngine.isDebugActive()) {

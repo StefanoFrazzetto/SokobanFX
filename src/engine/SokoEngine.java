@@ -15,42 +15,42 @@ import java.util.NoSuchElementException;
  * SokoEngine is responsible for handling all the game mechanics.
  *
  * @author Stefano Frazzetto
- * @version 1.0.0
+ * @version 2.0.0
  */
 public class SokoEngine {
 
-    public static final String GAME_NAME = "Sokoban";
+    /** The game name showed in the game dialog */
+    static final String GAME_NAME = "SokobanFX by Stefano Frazzetto";
 
-    /**
-     * The system logger
-     */
+    /** The system logger */
     public static SokoLogger logger;
     /**
      * The game debug mode
      */
     private static boolean debug = true;
-    /**
-     * The current level displayed in the game grid
-     */
+
+    /** The current level displayed in the game */
     private Level currentLevel;
 
-    /**
-     * The map set name
-     */
+    /** The map set name */
     private String mapSetName;
-    /**
-     * The list of levels
-     */
+
+    /** The list of levels */
     private List<Level> levels;
-    /**
-     * The WarehouseKeeper position
-     */
-    private Point keeperPosition;
+
+    /** The game state */
+    private boolean gameComplete = false;
+
+    /** The number of moves */
+    private int movesCount = 0;
+
+    /** The repository URL */
+    public final static String GitHubURL = "https://github.com/StefanoFrazzetto/NewSokobanFX";
 
     /**
      * Uses a {@link File} to load the game map containing all the levels.
      *
-     * @param file
+     * @param file the file containing the game levels.
      */
     public SokoEngine(File file) {
         try {
@@ -58,9 +58,6 @@ public class SokoEngine {
             logger = new SokoLogger();
             levels = loadGameFile(file);
             currentLevel = getNextLevel();
-
-            assert currentLevel != null;
-            keeperPosition = currentLevel.getKeeperPosition();
         } catch (IOException x) {
             System.out.println("Cannot create logger.");
         } catch (NoSuchElementException e) {
@@ -77,6 +74,20 @@ public class SokoEngine {
         return debug;
     }
 
+    public int getMovesCount() {
+        return movesCount;
+    }
+
+    public String getMapSetName() {
+        return mapSetName;
+    }
+
+    /**
+     * Handles the action that should be executed when a specific
+     * keyboard key is pressed.
+     *
+     * @param code the keyboard key code.
+     */
     public void handleKey(KeyCode code) {
         switch (code) {
             case UP:
@@ -96,9 +107,12 @@ public class SokoEngine {
                 break;
 
             default:
+                // TODO: implement something funny.
         }
 
-        System.out.println(code);
+        if (isDebugActive()) {
+            System.out.println(code);
+        }
     }
 
     /**
@@ -106,24 +120,31 @@ public class SokoEngine {
      *
      * @param delta - the movement delta
      */
-    public void move(Point delta) {
+    private void move(Point delta) {
+        // Prevent the player from moving if the game is complete.
+        if (isGameComplete()) {
+            return;
+        }
+
+        Point keeperPosition = currentLevel.getKeeperPosition();
         // Check what kind of object is located at target
-        GameObject sourceObject = currentLevel.getObjectAt(keeperPosition);
+        GameObject keeper = currentLevel.getObjectAt(keeperPosition);
         Point targetObjectPoint = GameGrid.translatePoint(keeperPosition, delta);
-        GameObject targetObject = currentLevel.getObjectAt(targetObjectPoint);
+        GameObject keeperTarget = currentLevel.getObjectAt(targetObjectPoint);
 
         // Print useful information if the debug mode is active.
         if (SokoEngine.isDebugActive()) {
             System.out.println("Current level state:");
             System.out.println(currentLevel.toString());
             System.out.println("Keeper pos: " + keeperPosition);
-            System.out.println("Movement source obj: " + sourceObject);
-            System.out.printf("Target object: %s at [%s]", targetObject, targetObjectPoint);
+            System.out.println("Movement source obj: " + keeper);
+            System.out.printf("Target object: %s at [%s]", keeperTarget, targetObjectPoint);
         }
 
         boolean keeperMoved = false;
 
-        switch (targetObject) {
+        // Check keeper target
+        switch (keeperTarget) {
 
             case WALL:
                 // Cannot move
@@ -131,23 +152,19 @@ public class SokoEngine {
 
             case CRATE:
 
-                // Prevent a Crate from moving against a non FLOOR object.
-                if (currentLevel.getTargetObject(targetObjectPoint, delta) != GameObject.FLOOR) {
+                GameObject crateTarget = currentLevel.getTargetObject(targetObjectPoint, delta);
+                // If the crate target is not FLOOR, cannot move.
+                if (crateTarget != GameObject.FLOOR) {
                     break;
                 }
 
-                currentLevel.moveGameObjectBy(targetObject, targetObjectPoint, delta);
-                currentLevel.moveGameObjectBy(sourceObject, keeperPosition, delta);
-                keeperMoved = true;
-
-                break;
-
-            case DIAMOND:
+                currentLevel.moveGameObjectBy(keeperTarget, targetObjectPoint, delta);
+                currentLevel.moveGameObjectBy(keeper, keeperPosition, delta);
                 keeperMoved = true;
                 break;
 
             case FLOOR:
-                currentLevel.moveGameObjectBy(sourceObject, keeperPosition, delta);
+                currentLevel.moveGameObjectBy(keeper, keeperPosition, delta);
                 keeperMoved = true;
                 break;
 
@@ -158,6 +175,11 @@ public class SokoEngine {
 
         if (keeperMoved) {
             keeperPosition.translate((int) delta.getX(), (int) delta.getY());
+            movesCount++;
+            if (currentLevel.isComplete()) {
+                System.out.println("Level complete!");
+                currentLevel = getNextLevel();
+            }
         }
     }
 
@@ -172,7 +194,6 @@ public class SokoEngine {
         int levelIndex = 0;
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String mapSetName = "";
             boolean parsedFirstLevel = false;
             List<String> rawLevel = new ArrayList<>();
             String levelName = "";
@@ -230,6 +251,10 @@ public class SokoEngine {
         return levels;
     }
 
+    public boolean isGameComplete() {
+        return gameComplete;
+    }
+
     private Level getNextLevel() {
         if (currentLevel == null) {
             return levels.get(0);
@@ -238,9 +263,10 @@ public class SokoEngine {
         int currentLevelIndex = currentLevel.getIndex();
         if (currentLevelIndex < levels.size()) {
             return levels.get(currentLevelIndex + 1);
-        } else {
-            return null;
         }
+
+        gameComplete = true;
+        return null;
     }
 
     public Level getCurrentLevel() {

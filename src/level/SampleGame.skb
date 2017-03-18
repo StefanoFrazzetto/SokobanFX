@@ -2,7 +2,7 @@ MapSetName: Example Game!
 LevelName: Simple Start
 WWWWWWWWWWWWWWWWWWWW
 W    W             W 
-W C  W D           W 
+W C  W D           W
 w    w      WWWWWWWW 
 w    WWWW  WWWWWWWWW 
 w            WWWWWWW 
@@ -15,10 +15,10 @@ w           WWWWWWWW
 w         WWWWWWWWWW 
 wWWWWWW   WWWWWWWWWW 
 wWWWWWW   WWWWWWWWWW 
+wWWWWWW   WWWWWWWWWW
 wWWWWWW   WWWWWWWWWW 
 wWWWWWW   WWWWWWWWWW 
-wWWWWWW   WWWWWWWWWW 
-wWWWWWW   SWWWWWWWWW 
+wWWWWWW   SWWWWWWWWW
 wwwwwwwwWwwwwwwwwwww
 
 LevelName: And Another Thing!

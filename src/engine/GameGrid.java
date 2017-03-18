@@ -70,37 +70,22 @@ public class GameGrid implements Iterable {
     }
 
     /**
-     * Moves the GameObject from origin to target.
-     * Takes the GameObject located at origin and puts it at the target location.
-     *
-     * @param origin the origin GameObject position
-     * @param target the target position
-     * @return true if the gameObjects are moved, false otherwise
-     */
-    public boolean moveGameObjectTo(Point origin, Point target) {
-        if (origin == null) {
-            SokoEngine.logger.severe("Origin point is null.");
-            return false;
-        }
-
-        return putGameObjectAt(getGameObjectAt(origin), target);
-    }
-
-    /**
      * Gets the GameObject positioned at (x, y).
      *
-     * @param x the row of the GameObject
-     * @param y the column of the GameObject
+     * @param col the row of the GameObject
+     * @param row the column of the GameObject
      * @return GameObject
      * @throws ArrayIndexOutOfBoundsException if the coordinates are outside the grid bounds
      */
-    GameObject getGameObjectAt(int x, int y) throws ArrayIndexOutOfBoundsException {
-        if (isPointOutOfBounds(x, y)) {
-            System.out.printf("Trying to get null GameObject from COL: %d  ROW: %d", x, y);
-            throw new ArrayIndexOutOfBoundsException("Grid size [ROWS: " + ROWS + ", COLUMNS: " + COLUMNS + "].");
+    GameObject getGameObjectAt(int col, int row) throws ArrayIndexOutOfBoundsException {
+        if (isPointOutOfBounds(col, row)) {
+            if (SokoEngine.isDebugActive()) {
+                System.out.printf("Trying to get null GameObject from COL: %d  ROW: %d", col, row);
+            }
+            throw new ArrayIndexOutOfBoundsException("The point [" + col + ":" + row + "] is outside the map.");
         }
 
-        return gameObjects[x][y];
+        return gameObjects[col][row];
     }
 
     /**
@@ -180,15 +165,10 @@ public class GameGrid implements Iterable {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(gameObjects.length);
-        char o = '\0';
 
-        for (int i = 0; i < gameObjects.length; i++) {
-            for (int j = 0; j < gameObjects[i].length; j++) {
-                GameObject obj = gameObjects[i][j];
-                if (obj == null) {
-                    obj = GameObject.FLOOR;
-                }
-                sb.append(obj.getCharSymbol());
+        for (GameObject[] gameObject : gameObjects) {
+            for (GameObject aGameObject : gameObject) {
+                sb.append(aGameObject.getCharSymbol());
             }
 
             sb.append('\n');
@@ -224,15 +204,11 @@ public class GameGrid implements Iterable {
 
         @Override
         public GameObject next() {
-            if (column >= COLUMNS){
+            if (column >= COLUMNS) {
                 column = 0;
                 row++;
             }
             return getGameObjectAt(column++, row);
-        }
-
-        public Point getCurrentPosition() {
-            return new Point(row, column);
         }
     }
 }
