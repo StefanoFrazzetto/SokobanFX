@@ -19,33 +19,42 @@ import java.util.NoSuchElementException;
  */
 public class SokoEngine {
 
-    /** The game name showed in the game dialog */
+    /**
+     * The repository URL
+     */
+    public final static String GitHubURL = "https://github.com/StefanoFrazzetto/NewSokobanFX";
+    /**
+     * The game name showed in the game dialog
+     */
     static final String GAME_NAME = "SokobanFX by Stefano Frazzetto";
-
-    /** The system logger */
+    /**
+     * The system logger
+     */
     public static SokoLogger logger;
     /**
      * The game debug mode
      */
     private static boolean debug = true;
-
-    /** The current level displayed in the game */
+    /**
+     * The current level displayed in the game
+     */
     private Level currentLevel;
-
-    /** The map set name */
+    /**
+     * The map set name
+     */
     private String mapSetName;
-
-    /** The list of levels */
+    /**
+     * The list of levels
+     */
     private List<Level> levels;
-
-    /** The game state */
+    /**
+     * The game state
+     */
     private boolean gameComplete = false;
-
-    /** The number of moves */
+    /**
+     * The number of moves
+     */
     private int movesCount = 0;
-
-    /** The repository URL */
-    public final static String GitHubURL = "https://github.com/StefanoFrazzetto/NewSokobanFX";
 
     /**
      * Uses a {@link File} to load the game map containing all the levels.

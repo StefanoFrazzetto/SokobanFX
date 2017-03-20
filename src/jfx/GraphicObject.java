@@ -1,6 +1,7 @@
 package jfx;
 
-import engine.*;
+import engine.GameObject;
+import engine.SokoEngine;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;

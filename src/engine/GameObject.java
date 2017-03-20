@@ -2,7 +2,7 @@ package engine;
 
 /**
  * GameObject represents the objects in a game.
- *
+ * <p>
  * Each object has a symbol which is used to decode the save files.
  */
 public enum GameObject {
@@ -21,7 +21,7 @@ public enum GameObject {
 
     /**
      * Returns the enum associated with a char.
-     *
+     * <p>
      * If the char is not associated with any enum, it will return WALL as default value.
      *
      * @param c - the char to look for

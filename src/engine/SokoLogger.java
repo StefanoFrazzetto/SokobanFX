@@ -43,6 +43,7 @@ public class SokoLogger extends Logger {
 
     /**
      * {@inheritDoc}
+     *
      * @param message
      */
     public void info(String message) {
@@ -51,6 +52,7 @@ public class SokoLogger extends Logger {
 
     /**
      * {@inheritDoc}
+     *
      * @param message
      */
     public void warning(String message) {
@@ -59,6 +61,7 @@ public class SokoLogger extends Logger {
 
     /**
      * {@inheritDoc}
+     *
      * @param message
      */
     public void severe(String message) {
