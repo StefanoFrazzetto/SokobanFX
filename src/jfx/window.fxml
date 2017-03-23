@@ -8,6 +8,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
+<?import javafx.scene.control.RadioMenuItem?>
 <GridPane xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jfx.Controller">
     <MenuBar fx:id="menu" GridPane.rowIndex="0">
         <Menu mnemonicParsing="false" text="File">
@@ -18,6 +19,8 @@
         </Menu>
         <Menu mnemonicParsing="false" text="Level">
             <MenuItem accelerator="Shortcut+Z" disable="true" mnemonicParsing="false" onAction="#undo" text="Undo" />
+            <RadioMenuItem accelerator="Shortcut+M" mnemonicParsing="false" onAction="#toggleMusic" text="Toggle music" />
+            <RadioMenuItem accelerator="Shortcut+D" mnemonicParsing="false" onAction="#toggleDebug" text="Toggle debug" />
             <SeparatorMenuItem />
             <MenuItem accelerator="Shortcut+R" mnemonicParsing="false" onAction="#resetLevel" text="Reset Level" />
         </Menu>

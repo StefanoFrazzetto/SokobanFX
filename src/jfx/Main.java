@@ -1,5 +1,6 @@
 package jfx;
 
+import engine.GameEngine;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -17,7 +18,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("window.fxml"));
         Parent root = loader.load();
-        primaryStage.setTitle("Sokoban");
+        primaryStage.setTitle(GameEngine.GAME_NAME);
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
         Controller controller = loader.getController();

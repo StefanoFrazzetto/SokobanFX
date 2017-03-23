@@ -11,7 +11,8 @@ public enum GameObject {
     CRATE('C'),
     DIAMOND('D'),
     KEEPER('S'),
-    CRATE_ON_DIAMOND('O');
+    CRATE_ON_DIAMOND('O'),
+    DEBUG_OBJECT('=');
 
     private final char symbol;
 

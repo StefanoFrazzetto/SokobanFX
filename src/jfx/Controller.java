@@ -1,8 +1,8 @@
 package jfx;
 
+import engine.GameEngine;
 import engine.GameObject;
 import engine.Level;
-import engine.SokoEngine;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -21,6 +21,7 @@ import javafx.stage.Stage;
 
 import java.awt.*;
 import java.io.File;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 
 public class Controller {
@@ -28,7 +29,7 @@ public class Controller {
     public MenuBar menu;
     public GridPane gameGrid;
     private Stage primaryStage;
-    private SokoEngine sokoEngine;
+    private GameEngine gameEngine;
     private File saveFile;
 
     /**
@@ -38,7 +39,12 @@ public class Controller {
      */
     void loadDefaultSaveFile(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        saveFile = new File(getSaveFileLocation() + "/SampleGame.skb");
+        try {
+            saveFile = new File(getSaveFileLocation() + "/SampleGame.skb");
+        } catch (URISyntaxException e) {
+            GameEngine.logger.severe("Cannot open default save file");
+            e.printStackTrace();
+        }
         setEventFilter();
         initializeGame(saveFile);
     }
@@ -49,16 +55,16 @@ public class Controller {
      * @param file the game file to be loaded
      */
     private void initializeGame(File file) {
-        sokoEngine = new SokoEngine(file);
+        gameEngine = new GameEngine(file, true);
         reloadGrid();
     }
 
     /**
-     * Adds the event filter to handle {@link KeyEvent}s passing them to {@link SokoEngine}.
+     * Adds the event filter to handle {@link KeyEvent}s passing them to {@link GameEngine}.
      */
     private void setEventFilter() {
         primaryStage.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-            sokoEngine.handleKey(event.getCode());
+            gameEngine.handleKey(event.getCode());
             reloadGrid();
         });
     }
@@ -66,8 +72,8 @@ public class Controller {
     /**
      * @return The folder where the save files are located
      */
-    private File getSaveFileLocation() {
-        File folder = new File(System.getProperty("user.dir") + "\\src\\level\\");
+    private File getSaveFileLocation() throws URISyntaxException {
+        File folder = new File(this.getClass().getResource("../level").toURI());
 
         if (!Files.exists(folder.toPath())) {
             folder = new File(System.getProperty("user.dir"));
@@ -84,12 +90,17 @@ public class Controller {
         fileChooser.setTitle("Open Save File");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Sokoban save file", "*.skb"));
 
-        fileChooser.setInitialDirectory(getSaveFileLocation());
-        File saveFile = fileChooser.showOpenDialog(primaryStage);
+        try {
+            fileChooser.setInitialDirectory(getSaveFileLocation());
+        } catch (URISyntaxException e) {
+            GameEngine.logger.severe("Cannot get default levels directory");
+            e.printStackTrace();
+        }
+        saveFile = fileChooser.showOpenDialog(primaryStage);
 
         if (saveFile != null) {
-            if (SokoEngine.isDebugActive()) {
-                SokoEngine.logger.info("Loading save file: " + saveFile.getName());
+            if (GameEngine.isDebugActive()) {
+                GameEngine.logger.info("Loading save file: " + saveFile.getName());
             }
             initializeGame(saveFile);
         }
@@ -100,14 +111,16 @@ public class Controller {
      * Reloads the grid using the {@link Level} iterator.
      */
     private void reloadGrid() {
-        if (sokoEngine.isGameComplete()) {
+        if (gameEngine.isGameComplete()) {
             // TODO: fix last move of the game.
             showVictoryMessage();
             return;
         }
 
-        Level currentLevel = sokoEngine.getCurrentLevel();
+        Level currentLevel = gameEngine.getCurrentLevel();
         Level.LevelIterator levelGridIterator = (Level.LevelIterator) currentLevel.iterator();
+
+        gameGrid.getChildren().clear();
 
         while (levelGridIterator.hasNext()) {
             addObjectToGrid(levelGridIterator.next(), levelGridIterator.getCurrentPosition());
@@ -119,7 +132,7 @@ public class Controller {
 
     private void showVictoryMessage() {
         String dialogTitle = "Game Over!";
-        String dialogMessage = "You completed " + sokoEngine.getMapSetName() + " in " + sokoEngine.getMovesCount() + " moves!";
+        String dialogMessage = "You completed " + gameEngine.getMapSetName() + " in " + gameEngine.getMovesCount() + " moves!";
         MotionBlur mb = new MotionBlur(2, 3);
 
         newDialog(dialogTitle, dialogMessage, mb);
@@ -153,9 +166,9 @@ public class Controller {
     /**
      * Adds an object to the specified grid position.
      * It first converts a {@link GameObject} into a {@link javafx.scene.shape.Rectangle},
-     * then it adds the new rectangle into the specified location.
+     * then adds the new rectangle into the specified location.
      *
-     * @param gameObject The game object to be added into the grid
+     * @param gameObject the game object to be added into the grid
      * @param location   the location where the game object will be added
      */
     private void addObjectToGrid(GameObject gameObject, Point location) {
@@ -164,7 +177,7 @@ public class Controller {
     }
 
     public void closeGame(ActionEvent actionEvent) {
-        // TODO
+        System.exit(0);
     }
 
     public void saveGame(ActionEvent actionEvent) {
@@ -185,8 +198,31 @@ public class Controller {
 
     public void showAbout(ActionEvent actionEvent) {
         String title = "About this game";
-        String message = "Game created by Stefano Frazzetto\n\nContribute on GitHub:\n" + SokoEngine.GitHubURL;
+        String message = "Game created by Stefano Frazzetto\n\nContribute on GitHub:\n" + GameEngine.GitHubURL;
 
         newDialog(title, message, null);
+    }
+
+    /**
+     * Toggles the debug mode.
+     *
+     * @param actionEvent the event triggered when the menu item is pressed.
+     */
+    public void toggleDebug(ActionEvent actionEvent) {
+        gameEngine.toggleDebug();
+        reloadGrid();
+    }
+
+    /**
+     * Toggles the music.
+     *
+     * @param actionEvent the event triggered when the menu item is pressed.
+     */
+    public void toggleMusic(ActionEvent actionEvent) {
+        if (!gameEngine.isPlayingMusic()) {
+            gameEngine.playMusic();
+        } else {
+            gameEngine.stopMusic();
+        }
     }
 }

@@ -50,7 +50,7 @@ public final class Level implements Iterable<GameObject> {
      * @param raw_level  the raw data of the level
      */
     public Level(String levelName, int levelIndex, List<String> raw_level) {
-        if (SokoEngine.isDebugActive()) {
+        if (GameEngine.isDebugActive()) {
             System.out.printf("[ADDING LEVEL] LEVEL [%d]: %s\n", levelIndex, levelName);
         }
 

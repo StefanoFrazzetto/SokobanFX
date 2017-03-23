@@ -28,7 +28,7 @@ public class GameGrid implements Iterable {
      * @param columns the number of columns
      * @param rows    the number of rows
      */
-    GameGrid(int columns, int rows) {
+    public GameGrid(int columns, int rows) {
         COLUMNS = columns;
         ROWS = rows;
 
@@ -50,7 +50,7 @@ public class GameGrid implements Iterable {
     }
 
     /**
-     * Returns the size of this grid in the form of a {@link Dimension} GameObject.
+     * Returns the size of this grid as {@link Dimension}.
      *
      * @return a {@link Dimension} GameObject that indicates the size of this grid
      */
@@ -77,9 +77,9 @@ public class GameGrid implements Iterable {
      * @return GameObject
      * @throws ArrayIndexOutOfBoundsException if the coordinates are outside the grid bounds
      */
-    GameObject getGameObjectAt(int col, int row) throws ArrayIndexOutOfBoundsException {
+    public GameObject getGameObjectAt(int col, int row) throws ArrayIndexOutOfBoundsException {
         if (isPointOutOfBounds(col, row)) {
-            if (SokoEngine.isDebugActive()) {
+            if (GameEngine.isDebugActive()) {
                 System.out.printf("Trying to get null GameObject from COL: %d  ROW: %d", col, row);
             }
             throw new ArrayIndexOutOfBoundsException("The point [" + col + ":" + row + "] is outside the map.");
@@ -94,7 +94,7 @@ public class GameGrid implements Iterable {
      * @param p the point where the GameObject should be found
      * @return GameObject if the the GameObject is found || null if the point is null
      */
-    GameObject getGameObjectAt(Point p) {
+    public GameObject getGameObjectAt(Point p) {
         if (p == null) {
             throw new IllegalArgumentException("Point cannot be null.");
         }
@@ -108,7 +108,7 @@ public class GameGrid implements Iterable {
      * @param position the position putting null in the GameObject position
      * @return boolean  true if it was possible to remove the GameObject, false otherwise
      */
-    boolean removeGameObjectAt(Point position) {
+    public boolean removeGameObjectAt(Point position) {
         return putGameObjectAt(null, position);
     }
 
@@ -121,7 +121,7 @@ public class GameGrid implements Iterable {
      * @param y          the y coordinate
      * @return true if the operation is successful, false otherwise
      */
-    boolean putGameObjectAt(GameObject gameObject, int x, int y) {
+    public boolean putGameObjectAt(GameObject gameObject, int x, int y) {
         if (isPointOutOfBounds(x, y)) {
             return false;
         }
@@ -137,7 +137,7 @@ public class GameGrid implements Iterable {
      * @param p          the point where the GameObject will be put into
      * @return true if the operation is successful, false otherwise.
      */
-    boolean putGameObjectAt(GameObject gameObject, Point p) {
+    public boolean putGameObjectAt(GameObject gameObject, Point p) {
         return p != null && putGameObjectAt(gameObject, (int) p.getX(), (int) p.getY());
     }
 
@@ -168,6 +168,9 @@ public class GameGrid implements Iterable {
 
         for (GameObject[] gameObject : gameObjects) {
             for (GameObject aGameObject : gameObject) {
+                if (aGameObject == null) {
+                    aGameObject = GameObject.DEBUG_OBJECT;
+                }
                 sb.append(aGameObject.getCharSymbol());
             }
 
