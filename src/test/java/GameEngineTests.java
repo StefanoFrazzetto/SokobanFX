@@ -9,7 +9,7 @@ import org.junit.Test;
 
 
 import java.awt.*;
-import java.io.File;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -18,17 +18,14 @@ import static junit.framework.TestCase.assertTrue;
 
 public class GameEngineTests extends Application {
 
-    public static GameEngine engine;
-    public static Level level;
-
-    private Method move;
+    private static GameEngine engine;
+    static Level level;
 
     @Before
     public void setUp() throws Exception {
-        File saveFile = new File(this.getClass().getResource("../level/debugLevel.skb").toURI());
-        System.out.println(saveFile);
+        InputStream in = getClass().getResourceAsStream("debugLevel.skb");
 
-        engine = new GameEngine(saveFile, false);
+        engine = new GameEngine(in, false);
         level = engine.getCurrentLevel();
     }
 
@@ -55,7 +52,7 @@ public class GameEngineTests extends Application {
 
     @Test
     public void testMove() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        move = GameEngine.class.getDeclaredMethod("move", Point.class);
+        Method move = GameEngine.class.getDeclaredMethod("move", Point.class);
         move.setAccessible(true);
 
         move.invoke(engine, new Point(0, 1));

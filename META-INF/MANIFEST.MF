@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Main-Class: jfx.Main
+Specification-Title: SokobanFX
+Specification-Version: 1.0
+Specification-Vendor: Stefano Frazzetto
+Implementation-Title: SokobanFX
+Implementation-Version: 1.0
+Implementation-Vendor: Stefano Frazzetto
+

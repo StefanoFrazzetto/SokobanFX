@@ -1,6 +1,8 @@
 package jfx;
 
-
+import engine.GameEngine;
+import engine.GameObject;
+import engine.Level;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -16,12 +18,12 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import engine.GameEngine;
-import engine.GameObject;
-import engine.Level;
 
 import java.awt.*;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 
@@ -40,23 +42,18 @@ public class Controller {
      */
     void loadDefaultSaveFile(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        try {
-            saveFile = new File(getSaveFileLocation() + "/SampleGame.skb");
-        } catch (URISyntaxException e) {
-            GameEngine.logger.severe("Cannot open default save file");
-            e.printStackTrace();
-        }
+        InputStream in = getClass().getClassLoader().getResourceAsStream("level/SampleGame.skb");
+        initializeGame(in);
         setEventFilter();
-        initializeGame(saveFile);
     }
 
     /**
      * Initializes the game using the provided game file.
      *
-     * @param file the game file to be loaded
+     * @param input the game file to be loaded
      */
-    private void initializeGame(File file) {
-        gameEngine = new GameEngine(file, true);
+    private void initializeGame(InputStream input) {
+        gameEngine = new GameEngine(input, true);
         reloadGrid();
     }
 
@@ -71,39 +68,20 @@ public class Controller {
     }
 
     /**
-     * @return The folder where the save files are located
-     */
-    private File getSaveFileLocation() throws URISyntaxException {
-        File folder = new File(this.getClass().getResource("../level").toURI());
-
-        if (!Files.exists(folder.toPath())) {
-            folder = new File(System.getProperty("user.dir"));
-        }
-
-        return folder;
-    }
-
-    /**
      * Opens the load game window
      */
-    private void loadGameFile() {
+    private void loadGameFile() throws FileNotFoundException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Save File");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Sokoban save file", "*.skb"));
 
-        try {
-            fileChooser.setInitialDirectory(getSaveFileLocation());
-        } catch (URISyntaxException e) {
-            GameEngine.logger.severe("Cannot get default levels directory");
-            e.printStackTrace();
-        }
         saveFile = fileChooser.showOpenDialog(primaryStage);
 
         if (saveFile != null) {
             if (GameEngine.isDebugActive()) {
                 GameEngine.logger.info("Loading save file: " + saveFile.getName());
             }
-            initializeGame(saveFile);
+            initializeGame(new FileInputStream(saveFile));
         }
 
     }
@@ -186,7 +164,11 @@ public class Controller {
     }
 
     public void loadGame(ActionEvent actionEvent) {
-        loadGameFile();
+        try {
+            loadGameFile();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     public void undo(ActionEvent actionEvent) {
@@ -194,7 +176,7 @@ public class Controller {
     }
 
     public void resetLevel(ActionEvent actionEvent) {
-        initializeGame(saveFile);
+//        initializeGame(saveFile);
     }
 
     public void showAbout(ActionEvent actionEvent) {

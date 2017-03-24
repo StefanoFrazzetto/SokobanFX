@@ -7,10 +7,7 @@ import javafx.util.Duration;
 
 import javax.sound.sampled.LineUnavailableException;
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -68,15 +65,15 @@ public class GameEngine {
     /**
      * Uses a {@link File} to load the game map containing all the levels.
      *
-     * @param file the file containing the game levels.
+     * @param input the file containing the game levels.
      * @param production true if using the engine in live mode, false
      *                   only for testing mode.
      */
-    public GameEngine(File file, boolean production) {
+    public GameEngine(InputStream input, boolean production) {
         try {
             // Initialize the logger
             logger = new GameLogger();
-            levels = loadGameFile(file);
+            levels = loadGameFile(input);
             currentLevel = getNextLevel();
 
             if (production) {
@@ -215,14 +212,14 @@ public class GameEngine {
     /**
      * Loads a game file creating a {@link List} of {@link Level}s.
      *
-     * @param file - the file containing the levels
+     * @param input - the file containing the levels
      * @return the list containing the levels
      */
-    private List<Level> loadGameFile(File file) {
+    private List<Level> loadGameFile(InputStream input) {
         List<Level> levels = new ArrayList<>(5);
         int levelIndex = 0;
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
             boolean parsedFirstLevel = false;
             List<String> rawLevel = new ArrayList<>();
             String levelName = "";
@@ -275,6 +272,8 @@ public class GameEngine {
 
         } catch (IOException e) {
             logger.severe("Error trying to load the game file: " + e);
+        } catch (NullPointerException e) {
+            logger.severe("Cannot open the requested file: " + e);
         }
 
         return levels;
@@ -295,24 +294,24 @@ public class GameEngine {
      * @throws LineUnavailableException if the file is not available.
      */
     private void createPlayer() throws LineUnavailableException {
-        File filePath = new File(System.getProperty("user.dir") + "/src/music/puzzle_theme.wav");
-        Media music = new Media(filePath.toURI().toString());
-        player = new MediaPlayer(music);
-        player.setOnEndOfMedia(() -> player.seek(Duration.ZERO));
+//        File filePath = new File(getClass().getClassLoader().getResource("music/puzzle_theme.wav").toString());
+//        Media music = new Media(filePath.toURI().toString());
+//        player = new MediaPlayer(music);
+//        player.setOnEndOfMedia(() -> player.seek(Duration.ZERO));
     }
 
     /**
      * Starts playing music.
      */
     public void playMusic() {
-        player.play();
+//        player.play();
     }
 
     /**
      * Stops playing music.
      */
     public void stopMusic() {
-        player.stop();
+//        player.stop();
     }
 
     /**
@@ -321,7 +320,8 @@ public class GameEngine {
      * @return true if playing music, false otherwise.
      */
     public boolean isPlayingMusic() {
-        return player.getStatus() == MediaPlayer.Status.PLAYING;
+//        return player.getStatus() == MediaPlayer.Status.PLAYING;
+        return false;
     }
 
     /**
