@@ -1,8 +1,6 @@
 package jfx;
 
-import engine.GameEngine;
-import engine.GameObject;
-import engine.Level;
+
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -18,6 +16,9 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import engine.GameEngine;
+import engine.GameObject;
+import engine.Level;
 
 import java.awt.*;
 import java.io.File;

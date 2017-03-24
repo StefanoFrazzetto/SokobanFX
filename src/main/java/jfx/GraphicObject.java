@@ -1,13 +1,13 @@
 package jfx;
 
-import engine.GameEngine;
-import engine.GameObject;
 import javafx.animation.FadeTransition;
 import javafx.animation.Timeline;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
+import engine.GameEngine;
+import engine.GameObject;
 
 /**
  * GraphicObject is used to populate the game grid.
