@@ -1,9 +1,7 @@
 package engine;
 
 import javafx.scene.input.KeyCode;
-import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import javafx.util.Duration;
 
 import javax.sound.sampled.LineUnavailableException;
 import java.awt.*;
@@ -174,16 +172,15 @@ public class GameEngine {
                 break;
 
             case CRATE:
-
+                // Get the object located at delta from this crate
                 GameObject crateTarget = currentLevel.getTargetObject(targetObjectPoint, delta);
-                // If the crate target is not FLOOR, cannot move.
-                if (crateTarget != GameObject.FLOOR) {
-                    break;
-                }
 
-                currentLevel.moveGameObjectBy(keeperTarget, targetObjectPoint, delta);
-                currentLevel.moveGameObjectBy(keeper, keeperPosition, delta);
-                keeperMoved = true;
+                // If the crate target is not FLOOR, the crate cannot be moved
+                if (crateTarget == GameObject.FLOOR) {
+                    currentLevel.moveGameObjectBy(keeperTarget, targetObjectPoint, delta);
+                    currentLevel.moveGameObjectBy(keeper, keeperPosition, delta);
+                    keeperMoved = true;
+                }
                 break;
 
             case FLOOR:
